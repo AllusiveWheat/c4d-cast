@@ -24,6 +24,8 @@
 """
 
 # Imports
+from itertools import islice
+import struct
 import c4d
 from c4d import plugins
 from c4d import documents
@@ -85,6 +87,7 @@ def importSkeletonNode(skeleton):
         return (None, None)
 
     bones = skeleton.Bones()
+    
 
 
 def importModelNode(model, path):
@@ -95,13 +98,34 @@ def importModelNode(model, path):
 
     for mesh in meshes:
         vertexCount = mesh.VertexCount()
+        print("Vertex Count: ", vertexCount)
         facecount = mesh.FaceCount()
-        null = c4d.BaseObject(c4d.Opolygon)
-        bs = null.GetPointS()
-        
-        null.SetName(mesh.Name() or "CastMesh")
-        CurrentProj.InsertObject(null)
-        print("Mesh: ", mesh)
+        polyCount = mesh.VertexCount()
+        if polyCount != 0:
+            polyObj = c4d.PolygonObject(vertexCount *3, vertexCount)
+            polyObj.SetName(mesh.Name())
+            #Fill the polygon object with the mesh data
+            #Create a new c4d.Vector for each vertex
+            for i in range(int(vertexCount)):
+                v = mesh.VertexPositionBuffer()
+                array = list(v)
+                
+                # Split is steped by 3 because each vertex is a 3d vector
+                split = [array[i:i+3] for i in range(0, len(array), 3)]
+                #Convert split into a tuple
+                allPos = tuple(split)
+                #Convert tuple into a list
+                posList = list(allPos)
+                
+                print("PosList: ", posList[0])
+                
+                
+                
+                
+                
+                
+               # polyObj.SetPoint(i, c4d.Vector(v.x, v.y, v.z))
+            CurrentProj.InsertObject(polyObj)
 
 
 def importCast(path):
