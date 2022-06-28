@@ -33,6 +33,7 @@ from c4d import gui
 from c4d import storage
 from cast import Cast, Model, Animation, Curve, NotificationTrack, Mesh, Skeleton, Bone, Material, File
 import math
+import numpy as np
 
 # Global Vars
 PLUGIN_VERSION_MAJOR = 1
@@ -106,26 +107,20 @@ def importModelNode(model, path):
             polyObj.SetName(mesh.Name())
             #Fill the polygon object with the mesh data
             #Create a new c4d.Vector for each vertex
-            for i in range(int(vertexCount)):
-                v = mesh.VertexPositionBuffer()
-                array = list(v)
-                
-                # Split is steped by 3 because each vertex is a 3d vector
-                split = [array[i:i+3] for i in range(0, len(array), 3)]
-                #Convert split into a tuple
-                allPos = tuple(split)
-                #Convert tuple into a list
-                posList = list(allPos)
-                
-                print("PosList: ", posList[0])
-                
-                
-                
-                
-                
-                
-               # polyObj.SetPoint(i, c4d.Vector(v.x, v.y, v.z))
+            npArr = np.array(mesh.VertexPositionBuffer())
+            
+            split = np.array_split(npArr, len(npArr)/3)
+            
+            print("Split: ", split[0])
+            
+            print("X: ", split[0][0])
+            
+            polyObj.SetPoint(0, c4d.Vector(split[0][0], split[0][1], split[0][2]))
+           
+    
+            
             CurrentProj.InsertObject(polyObj)
+            
 
 
 def importCast(path):
